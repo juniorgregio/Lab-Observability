@@ -21,10 +21,40 @@ Este repositório contém arquivos para automatizar o provisionamento de máquin
 
 - `hosts.yml`, `iac_estudos.pem`: Suportam a configuração do Ansible e o acesso seguro aos servidores.
 
+Entendido! Vou incluir no README as instruções específicas para executar os arquivos do Terraform e do Ansible, destacando também a automação que inicia o Ansible após a execução do Terraform. Aqui está o trecho atualizado:
+
+---
+
 ## Como Utilizar 🛠️
 
-1. **Terraform:** Instale, configure e execute para provisionar infraestrutura na AWS.
-2. **Ansible:** Instale, atualize o inventário e execute o playbook para configurar os servidores e instalar o EasyTravel-demo.
+### Executando o Terraform
+
+1. **Inicialize o Terraform:**
+   - Navegue até o diretório do Terraform (`/path/to/terraform/files`).
+   - Execute `terraform init` para inicializar o diretório de trabalho do Terraform.
+
+2. **Aplicando as Configurações do Terraform:**
+   - Execute `terraform apply` para aplicar as configurações.
+   - Após a execução, o Terraform automaticamente inicia o processo do Ansible para configurar os servidores provisionados.
+
+### Executando o Ansible Manualmente
+
+Caso precise executar o Ansible manualmente (por exemplo, para reconfigurar servidores ou para fins de teste), siga estes passos:
+
+1. **Atualize o Inventário do Ansible:**
+   - Execute o script `update_ansible_hosts.sh` para garantir que o inventário esteja atualizado com os endereços IP mais recentes dos servidores provisionados.
+
+2. **Execute o Playbook do Ansible:**
+   - Navegue até o diretório do Ansible (`/path/to/ansible/files`).
+   - Execute `ansible-playbook playbook_easytravel.yml` para iniciar a configuração dos servidores.
+
+### Automação Terraform-Ansible
+
+- Este projeto está configurado para que, após a execução bem-sucedida do Terraform (`terraform apply`), ele automaticamente inicie o Ansible. Isso é feito através de um recurso de automação no Terraform que chama o Ansible como uma etapa subsequente.
+
+---
+
+Lembre-se de substituir `/path/to/terraform/files` e `/path/to/ansible/files` pelos caminhos reais onde seus arquivos Terraform e Ansible estão localizados.
 
 ## Instruções Detalhadas para Configuração 📚
 
