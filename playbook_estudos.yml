@@ -1,0 +1,30 @@
+---
+- hosts: terraform_ansible
+  tasks:
+    - name: Instalando o python3 e virtualenv
+      apt: 
+        pkg: 
+        - python3
+        - virtualenv
+        - python3-django
+        update_cache: yes
+      become: yes
+
+    - name: Instalando dependências com PIP (Django e Django rest)
+      pip:
+        virtualenv: /home/ubuntu/venv
+        name:
+        - django
+        - djangorestframework
+
+    - name: Iniciando projeto Django
+      shell: '. /home/ubuntu/venv/bin/activate; django-admin startproject setup /home/ubuntu/'
+
+    - name: Alterando hosts no arquivo Settings do Django
+      lineinfile: 
+        path: /home/ubuntu/setup/settings.py
+        regexp: 'ALLOWED_HOSTS'
+        line: 'ALLOWED_HOSTS = ["*"]'
+        backrefs: yes
+
+    # Para iniciar o servidor, o comando na instância é: python3 manage.py runserver 0.0.0.0:8000

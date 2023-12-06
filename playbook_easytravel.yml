@@ -1,0 +1,113 @@
+# - hosts: terraform-ansible
+#   tasks:
+#     - name: Criando arquivo index.html
+#       copy:
+#         dest: "/home/ubuntu/index.html"
+#         content: |
+#           <h1>Feito com Ansible !!</h1>
+#     - name: Iniciando um servidor web simples com busybox
+#       shell: nohup busybox httpd -f -p 8080 &
+
+# Como executar o playbook
+# Comando: ansible-playbook -i hosts.yml playbook.yml -u ubuntu --private-key=/mnt/c/Users/junio/OneDrive/Área\ de\ Trabalho/Estudos/DevOps/Projeto\ IaC/iac_estudos.pem  
+# Comando se for usar ansible inventory, substitua o hosts.yml por ansible_inventory.json
+---
+- hosts: all
+  become: yes
+  vars:
+    ubuntu_desktop_password: 'Santander'
+
+  tasks:
+    - name: Atualize o sistema
+      apt:
+        update_cache: yes
+
+    - name: Instale os pacotes de pré-requisitos
+      apt:
+        name:
+          - curl
+          - apt-transport-https
+          - ca-certificates
+          - software-properties-common
+        update_cache: yes
+
+    - name: Obtenha a versão do Ubuntu
+      command: lsb_release -cs
+      register: ubuntu_version
+      ignore_errors: yes
+
+    - name: Adicione a chave GPG do Docker
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: Adicione os repositórios do Docker
+      apt_repository:
+        repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ubuntu_version.stdout | default('focal') }} stable"
+        state: present
+        update_cache: yes
+
+    - name: Instale o Docker e o Docker Compose
+      apt:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+          - docker-compose-plugin
+        update_cache: yes
+
+    - name: Verifique a versão do Docker
+      command: docker --version
+
+    - name: Verifique a versão do Docker Compose
+      command: docker compose version
+
+    - name: Verifique o status do Docker
+      command: systemctl status docker
+      register: systemctl_status_docker
+      failed_when: '"active (running)" not in systemctl_status_docker.stdout'
+
+    - name: Clone o repositório easyTravel-Docker
+      git:
+        repo: https://github.com/Dynatrace/easyTravel-Docker.git
+        dest: /home/ubuntu/easyTravel-Docker
+        clone: yes
+        update: yes
+        force: yes
+        
+
+    # - name: Instale o XRDP
+    #   apt:
+    #     name: xrdp
+    #     state: present
+
+    # - name: Habilite o XRDP para iniciar com o sistema
+    #   systemd:
+    #     name: xrdp
+    #     enabled: yes
+
+    # - name: Adicione o PPA do GNOME 3
+    #   apt_repository:
+    #     repo: ppa:gnome3-team/gnome3
+    #     state: present
+    #     update_cache: yes
+
+    # - name: Instale o GNOME Shell e o Ubuntu GNOME desktop
+    #   apt:
+    #     name:
+    #       - gnome-shell
+    #       - ubuntu-gnome-desktop
+    #     state: present
+    #     update_cache: yes
+
+    # - name: Defina a senha do usuário ubuntu
+    #   user:
+    #     name: ubuntu
+    #     password: "{{ ubuntu_desktop_password | password_hash('sha512') }}"
+
+
+    # - name: Inicie o ambiente easyTravel com docker-compose
+    #   command: docker compose up -d
+    #   args:
+    #     chdir: /home/ubuntu/easyTravel-Docker
+    #   become: yes
